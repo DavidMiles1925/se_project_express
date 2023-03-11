@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const itemSchema = mongoose.Schema({
+const itemSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
@@ -10,7 +10,7 @@ const itemSchema = mongoose.Schema({
   weather: {
     type: String,
     required: true,
-    enum: ["hot", "warm", "cold"],
+    enum: ["hot", "warm", "cold", `cold`],
   },
   imageUrl: {
     type: String,
@@ -24,7 +24,6 @@ const itemSchema = mongoose.Schema({
   likes: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "user",
-    default: [],
   },
   createdAt: {
     type: Date,
