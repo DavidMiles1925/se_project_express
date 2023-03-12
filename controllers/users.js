@@ -16,11 +16,12 @@ module.exports.getUserById = (req, res) => {
       res.status(200).send(user);
     })
     .catch((err) => {
-      if (req.params.UserId.length !== 24) {
+      errorHandler.errorHandler(req, res, err);
+      /* if (req.params.UserId.length !== 24) {
         res.status(400).send({ message: `Invalid ID: ${err.name}` });
       } else {
         errorHandler.errorHandler(req, res, err);
-      }
+      } */
     });
 };
 
