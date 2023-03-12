@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const User = require("../models/user");
 const errorHandler = require("../utils/errors");
+const { VALIDATION_OR_CAST_ERROR } = require("../utils/errorConstants");
 
 module.exports.getUsers = (req, res) => {
   User.find({})
@@ -19,7 +20,7 @@ module.exports.getUserById = (req, res) => {
     .catch((err) => {
       if (!mongoose.isValidObjectId(req.params.UserId)) {
         res
-          .status(400)
+          .status(VALIDATION_OR_CAST_ERROR)
           .send({ message: `Invalid ID: ${err.message} Name: ${err.name}` });
       } else {
         errorHandler.errorHandler(req, res, err);

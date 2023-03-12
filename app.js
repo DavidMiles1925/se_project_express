@@ -1,5 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const { NOT_FOUND_ERROR } = require("./utils/errorConstants");
 
 const { PORT = 3001 } = process.env;
 
@@ -22,7 +23,7 @@ app.use((req, res, next) => {
 app.use(routes);
 
 app.use((req, res) => {
-  res.status(404).send({ message: "Requested resource not found" });
+  res.status(NOT_FOUND_ERROR).send({ message: "Requested resource not found" });
 });
 
 app.listen(PORT, () => {

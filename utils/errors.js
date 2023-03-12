@@ -1,23 +1,25 @@
-module.exports.errorHandler = (req, res, err) => {
-  const VALIDATION_OR_CAST_ERROR = 400;
-  const NOT_FOUND_ERROR = 404;
-  const DEFAULT_ERROR = 500;
+const {
+  VALIDATION_OR_CAST_ERROR,
+  NOT_FOUND_ERROR,
+  DEFAULT_ERROR,
+} = require("./errorConstants");
 
+module.exports.errorHandler = (req, res, err) => {
   if (err.name === "ValidationError") {
     res
       .status(VALIDATION_OR_CAST_ERROR)
-      .send({ message: `Validation Error: ${err.message} Name: ${err.name}` });
+      .send({ message: `Validation Error: Name: ${err.name}` });
   } else if (err.name === "CastError") {
     res
       .status(VALIDATION_OR_CAST_ERROR)
-      .send({ message: `Invalid ID Error: ${err.message} Name: ${err.name}` });
+      .send({ message: `Invalid ID Error: Name: ${err.name}` });
   } else if (err.name === "DocumentNotFoundError") {
     res.status(NOT_FOUND_ERROR).send({
-      message: `Document Not Found: ${err.message} Name: ${err.name}`,
+      message: `Document Not Found: Name: ${err.name}`,
     });
   } else {
-    res
-      .status(DEFAULT_ERROR)
-      .send({ message: `Error: ${err.message} Name: ${err.name}` });
+    res.status(DEFAULT_ERROR).send({
+      message: `An error has occurred on the sercer: Name: ${err.name}`,
+    });
   }
 };
