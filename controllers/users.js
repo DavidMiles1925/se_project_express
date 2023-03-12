@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const User = require("../models/user");
 const errorHandler = require("../utils/errors");
 
@@ -16,8 +17,10 @@ module.exports.getUserById = (req, res) => {
       res.status(200).send(user);
     })
     .catch((err) => {
-      if (req.params.UserId.length !== 24) {
-        res.status(400).send({ message: `Invalid ID: ${err.name}` });
+      if (!mongoose.isValidObjectId(req.params.UserId)) {
+        res
+          .status(400)
+          .send({ message: `Invalid ID: ${err.message} Name: ${err.name}` });
       } else {
         errorHandler.errorHandler(req, res, err);
       }
