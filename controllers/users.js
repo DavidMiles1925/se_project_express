@@ -1,7 +1,10 @@
 const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 const errorHandler = require("../utils/errors");
 const { VALIDATION_OR_CAST_ERROR } = require("../utils/errorConstants");
+const JWT_SECRET = require("../utils/config");
 
 module.exports.getUsers = (req, res) => {
   User.find({})
@@ -29,11 +32,41 @@ module.exports.getUserById = (req, res) => {
 };
 
 module.exports.createUser = (req, res) => {
-  const { name, avatar } = req.body;
+  const { name, avatar, email } = req.body;
 
-  User.create({ name, avatar })
+  User.findOne({ email }).then((user) => {
+    if (user) {
+      return Promise.reject(new Error("User already exists"));
+    }
+    return true; // this is probably not right
+  });
+
+  bcrypt
+    .hash(req.body.password, 10)
+    .then((hash) =>
+      User.create({
+        name,
+        avatar,
+        email,
+        password: hash,
+      })
+    )
     .then((user) => res.status(201).send(user))
     .catch((err) => {
       errorHandler.errorHandler(req, res, err);
+    });
+};
+
+module.exports.login = (req, res) => {
+  const { email, password } = req.body;
+
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+      const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
+        expiresIn: "7d",
+      });
+    })
+    .catch((err) => {
+      res.status(401).send({ message: err.message });
     });
 };
