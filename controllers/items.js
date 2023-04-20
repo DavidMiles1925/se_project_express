@@ -1,5 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 const Item = require("../models/item");
+const { FORBIDDEN_ERROR, NOT_FOUND_ERROR } = require("../utils/errorConstants");
 const errorHandler = require("../utils/errors");
 
 module.exports.getItems = (req, res) => {
@@ -26,14 +27,20 @@ module.exports.createItem = (req, res) => {
 };
 
 module.exports.deleteItem = (req, res) => {
-  Item.findByIdAndRemove(req.params.ItemId)
+  const item = Item.findById(req.params.ItemId);
+
+  if (!item) {
+    return res.status(NOT_FOUND_ERROR).send({ message: "Item not found" });
+  }
+
+  if (String(item.owner) !== String(req.user.userId)) {
+    return res.status(FORBIDDEN_ERROR).send({ message: "Forbidden" });
+  }
+
+  return Item.findByIdAndRemove(req.params.ItemId)
     .orFail()
-    .then((item) => {
-      res.status(200).send({ data: item });
-    })
-    .catch((err) => {
-      errorHandler.errorHandler(req, res, err);
-    });
+    .then((deletedItem) => res.status(200).send({ data: deletedItem }))
+    .catch((err) => errorHandler.errorHandler(req, res, err));
 };
 
 module.exports.likeItem = (req, res) => {
