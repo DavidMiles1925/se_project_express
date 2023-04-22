@@ -21,7 +21,6 @@ module.exports.errorHandler = (req, res, err) => {
   } else if (err.code === 11000) {
     res.status(USER_EXISTS_ERROR).send({ message: "User already exists" });
   } else {
-    console.log("error name: ", err.name);
     res.status(DEFAULT_ERROR).send({
       message: `An error has occurred on the server: Name: ${err.name}`,
     });

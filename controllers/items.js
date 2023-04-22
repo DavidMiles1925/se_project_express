@@ -19,7 +19,6 @@ module.exports.getItems = (req, res) => {
 
 module.exports.createItem = (req, res) => {
   const { name, weather, imageUrl } = req.body;
-  console.log(name, weather, imageUrl, req.user._id);
 
   Item.create({ name, weather, imageUrl, owner: req.user._id })
     .then((item) => {
@@ -31,19 +30,21 @@ module.exports.createItem = (req, res) => {
 };
 
 module.exports.deleteItem = (req, res) => {
-  const item = Item.findById(req.params.ItemId);
+  Item.findById(req.params.ItemId)
+    .then((item) => {
+      if (!item) {
+        return res.status(NOT_FOUND_ERROR).send({ message: "Item not found" });
+      }
 
-  if (!item) {
-    return res.status(NOT_FOUND_ERROR).send({ message: "Item not found" });
-  }
+      if (String(item.owner) !== req.user._id) {
+        return res.status(FORBIDDEN_ERROR).send({ message: "Forbidden" });
+      }
 
-  if (String(item.owner) !== String(req.user._id)) {
-    return res.status(FORBIDDEN_ERROR).send({ message: "Forbidden" });
-  }
-
-  return Item.findByIdAndRemove(req.params.ItemId)
-    .orFail()
-    .then((deletedItem) => res.status(200).send({ data: deletedItem }))
+      return Item.findByIdAndRemove(req.params.ItemId)
+        .orFail()
+        .then((deletedItem) => res.status(200).send({ data: deletedItem }))
+        .catch((err) => errorHandler.errorHandler(req, res, err));
+    })
     .catch((err) => errorHandler.errorHandler(req, res, err));
 };
 

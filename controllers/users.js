@@ -10,6 +10,7 @@ const {
   USER_OK,
   NOT_FOUND_ERROR,
 } = require("../utils/errorConstants");
+const { JWT_SECRET } = require("../utils/config");
 
 module.exports.getUsers = (req, res) => {
   User.find({})
@@ -36,38 +37,6 @@ module.exports.getUserById = (req, res) => {
     });
 };
 
-/* module.exports.createUser = (req, res) => {
-  const { name, avatar, email, password } = req.body;
-
-  console.log("trying");
-  try {
-    const existingUser = User.findOne({ email });
-    console.log("user:");
-    if (existingUser.email) {
-      return res
-        .status(USER_EXISTS_ERROR)
-        .send("A user with this email already exists");
-    }
-
-    const hashedPassword = bcrypt.hash(password, 10);
-
-    console.log("creating user");
-    const user = User.create({
-      name,
-      avatar,
-      email,
-      password: hashedPassword,
-    });
-
-    // const { password: userPassword, ...userWithoutPassword } = user.toObject();
-
-    return res.status(USER_OK).send(user);
-  } catch (err) {
-    console.log("error found");
-    return errorHandler.errorHandler(req, res, err);
-  }
-}; */
-
 module.exports.createUser = (req, res) => {
   const { name, avatar, email } = req.body;
 
@@ -88,26 +57,18 @@ module.exports.createUser = (req, res) => {
       res.send(userWithoutPassword);
     })
     .catch((err) => {
-      console.log("error found");
       errorHandler.errorHandler(req, res, err);
     });
 };
 
 module.exports.login = (req, res) => {
-  console.log("attempt login");
   const { email, password } = req.body;
-  console.log(password);
 
   User.findUserByCredentials(email, password)
     .then((user) => {
-      console.log("signing token", user._id);
-      const token = jwt.sign(
-        { _id: user._id },
-        "5cdd183194489560b0e6bfaf8a81541e",
-        {
-          expiresIn: "7d",
-        }
-      );
+      const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
+        expiresIn: "7d",
+      });
 
       res.status(USER_OK).send({ token });
     })
