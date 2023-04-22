@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const config = require("../utils/config");
+const { JWT_SECRET } = require("../utils/config");
 const { AUTHORIZATION_ERROR } = require("../utils/errorConstants");
 
 const auth = (req, res, next) => {
@@ -15,7 +15,7 @@ const auth = (req, res, next) => {
 
   let payload;
   try {
-    payload = jwt.verify(token, config.JWT_SECRET);
+    payload = jwt.verify(token, JWT_SECRET);
   } catch (err) {
     return res.status(AUTHORIZATION_ERROR).send({ message: "Invalid token" });
   }

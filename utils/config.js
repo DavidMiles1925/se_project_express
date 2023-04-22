@@ -1,3 +1,1 @@
-const JWT_SECRET = "secretkey";
-
-export default JWT_SECRET;
+module.exports.JWT_SECRET = "5cdd183194489560b0e6bfaf8a81541e";

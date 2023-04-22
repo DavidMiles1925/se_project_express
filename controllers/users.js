@@ -5,17 +5,15 @@ const User = require("../models/user");
 const errorHandler = require("../utils/errors");
 const {
   VALIDATION_OR_CAST_ERROR,
-  USER_EXISTS_ERROR,
   AUTHENTICATION_ERROR,
   BAD_REQUEST_ERROR,
   USER_OK,
   NOT_FOUND_ERROR,
 } = require("../utils/errorConstants");
-const JWT_SECRET = require("../utils/config");
 
 module.exports.getUsers = (req, res) => {
   User.find({})
-    .then((users) => res.status(200).send(users))
+    .then((users) => res.status(USER_OK).send(users))
     .catch((err) => {
       errorHandler.errorHandler(req, res, err);
     });
@@ -25,7 +23,7 @@ module.exports.getUserById = (req, res) => {
   User.findById(req.params.UserId)
     .orFail()
     .then((user) => {
-      res.status(200).send(user);
+      res.status(USER_OK).send(user);
     })
     .catch((err) => {
       if (!mongoose.isValidObjectId(req.params.UserId)) {
@@ -38,12 +36,14 @@ module.exports.getUserById = (req, res) => {
     });
 };
 
-module.exports.createUser = (req, res) => {
+/* module.exports.createUser = (req, res) => {
   const { name, avatar, email, password } = req.body;
 
+  console.log("trying");
   try {
     const existingUser = User.findOne({ email });
-    if (existingUser) {
+    console.log("user:");
+    if (existingUser.email) {
       return res
         .status(USER_EXISTS_ERROR)
         .send("A user with this email already exists");
@@ -51,6 +51,7 @@ module.exports.createUser = (req, res) => {
 
     const hashedPassword = bcrypt.hash(password, 10);
 
+    console.log("creating user");
     const user = User.create({
       name,
       avatar,
@@ -58,40 +59,73 @@ module.exports.createUser = (req, res) => {
       password: hashedPassword,
     });
 
+    // const { password: userPassword, ...userWithoutPassword } = user.toObject();
+
     return res.status(USER_OK).send(user);
   } catch (err) {
+    console.log("error found");
     return errorHandler.errorHandler(req, res, err);
   }
+}; */
+
+module.exports.createUser = (req, res) => {
+  const { name, avatar, email } = req.body;
+
+  bcrypt
+    .hash(req.body.password, 10)
+    .then((hash) =>
+      User.create({
+        name,
+        avatar,
+        email,
+        password: hash,
+      })
+    )
+    .then((user) => {
+      const { password: userPassword, ...userWithoutPassword } =
+        user.toObject();
+
+      res.send(userWithoutPassword);
+    })
+    .catch((err) => {
+      console.log("error found");
+      errorHandler.errorHandler(req, res, err);
+    });
 };
 
 module.exports.login = (req, res) => {
+  console.log("attempt login");
   const { email, password } = req.body;
+  console.log(password);
 
-  try {
-    User.findUserByCredentials(email, password).then((user) => {
-      const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
-        expiresIn: "7d",
-      });
+  User.findUserByCredentials(email, password)
+    .then((user) => {
+      console.log("signing token", user._id);
+      const token = jwt.sign(
+        { _id: user._id },
+        "5cdd183194489560b0e6bfaf8a81541e",
+        {
+          expiresIn: "7d",
+        }
+      );
 
-      return res.status(USER_OK).send({ token });
+      res.status(USER_OK).send({ token });
+    })
+    .catch((err) => {
+      res.status(AUTHENTICATION_ERROR).send({ message: err.message });
     });
-  } catch (err) {
-    res.status(AUTHENTICATION_ERROR).send({ message: err.message });
-  }
 };
 
 module.exports.getCurrentUser = (req, res) => {
-  try {
-    const user = User.findById(req.user.UserId);
+  User.findById(req.user._id)
+    .then((user) => {
+      if (!user) {
+        res.status(NOT_FOUND_ERROR).send({ message: "User not found" });
+      }
 
-    if (!user) {
-      return res.status(NOT_FOUND_ERROR).send({ message: "User not found" });
-    }
-
-    return res.status(USER_OK).send({ data: user });
-  } catch (err) {
-    return errorHandler.errorHandler(req, res, err);
-  }
+      res.status(USER_OK).send({ data: user });
+    })
+    .catch((err) => errorHandler(req, res, err));
 };
 
 module.exports.updateProfile = (req, res) => {

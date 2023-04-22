@@ -1,12 +1,16 @@
 /* eslint-disable no-underscore-dangle */
 const Item = require("../models/item");
-const { FORBIDDEN_ERROR, NOT_FOUND_ERROR } = require("../utils/errorConstants");
+const {
+  FORBIDDEN_ERROR,
+  NOT_FOUND_ERROR,
+  USER_OK,
+} = require("../utils/errorConstants");
 const errorHandler = require("../utils/errors");
 
 module.exports.getItems = (req, res) => {
   Item.find({})
     .then((items) => {
-      res.status(200).send(items);
+      res.status(USER_OK).send(items);
     })
     .catch((err) => {
       errorHandler.errorHandler(req, res, err);
@@ -15,11 +19,11 @@ module.exports.getItems = (req, res) => {
 
 module.exports.createItem = (req, res) => {
   const { name, weather, imageUrl } = req.body;
-  const owner = req.user._id;
+  console.log(name, weather, imageUrl, req.user._id);
 
-  Item.create({ name, weather, imageUrl, owner })
+  Item.create({ name, weather, imageUrl, owner: req.user._id })
     .then((item) => {
-      res.status(201).send({ data: item });
+      res.status(USER_OK).send({ data: item });
     })
     .catch((err) => {
       errorHandler.errorHandler(req, res, err);
@@ -33,7 +37,7 @@ module.exports.deleteItem = (req, res) => {
     return res.status(NOT_FOUND_ERROR).send({ message: "Item not found" });
   }
 
-  if (String(item.owner) !== String(req.user.userId)) {
+  if (String(item.owner) !== String(req.user._id)) {
     return res.status(FORBIDDEN_ERROR).send({ message: "Forbidden" });
   }
 
