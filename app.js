@@ -2,8 +2,6 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 
-const { NOT_FOUND_ERROR } = require("./utils/errorConstants");
-
 const { PORT = 3001 } = process.env;
 
 const app = express();
@@ -17,18 +15,7 @@ app.use(cors());
 
 app.use(express.json());
 
-/* app.use((req, res, next) => {
-  req.user = {
-    _id: "640cd2f7567fc057dfdccf1c",
-  };
-  next();
-}); */
-
 app.use(routes);
-
-app.use((req, res) => {
-  res.status(NOT_FOUND_ERROR).send({ message: "Requested resource not found" });
-});
 
 app.listen(PORT, () => {
   console.log(`App is listening at port ${PORT}`);

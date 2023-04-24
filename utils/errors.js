@@ -6,7 +6,7 @@ const {
 } = require("./errorConstants");
 
 module.exports.errorHandler = (req, res, err) => {
-  if (err.name === "ValidationError" || err.name === "ValidatorError") {
+  if (err.name === "ValidationError") {
     res
       .status(VALIDATION_OR_CAST_ERROR)
       .send({ message: `Validation Error: Name: ${err.name}` });

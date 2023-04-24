@@ -6,7 +6,6 @@ const errorHandler = require("../utils/errors");
 const {
   VALIDATION_OR_CAST_ERROR,
   AUTHENTICATION_ERROR,
-  BAD_REQUEST_ERROR,
   USER_OK,
   NOT_FOUND_ERROR,
 } = require("../utils/errorConstants");
@@ -82,42 +81,26 @@ module.exports.getCurrentUser = (req, res) => {
     .then((user) => {
       if (!user) {
         res.status(NOT_FOUND_ERROR).send({ message: "User not found" });
+      } else {
+        res.status(USER_OK).send({ data: user });
       }
-
-      res.status(USER_OK).send({ data: user });
     })
-    .catch((err) => errorHandler(req, res, err));
+    .catch((err) => errorHandler.errorHandler(req, res, err));
 };
 
-module.exports.updateProfile = (req, res) => {
-  try {
-    const updates = Object.keys(req.body);
-    const allowedUpdates = ["name", "avatar"];
-    const isValidOperation = updates.every((update) =>
-      allowedUpdates.includes(update)
-    );
-
-    if (!isValidOperation) {
-      return res
-        .status(BAD_REQUEST_ERROR)
-        .send({ message: "Invalid update request" });
-    }
-
-    const { userId } = req.user;
-
-    const user = User.findById(userId);
-    if (!user) {
-      return res.status(NOT_FOUND_ERROR).send({ message: "User not found" });
-    }
-
-    updates.forEach((update) => {
-      user[update] = req.body[update];
-    });
-
-    user.save({ validateBeforeSave: true });
-
-    return res.send({ data: user });
-  } catch (err) {
-    return errorHandler.errorHandler(req, res, err);
-  }
+module.exports.updateProfile = async (req, res) => {
+  const { name, avatar } = req.body;
+  User.findByIdAndUpdate(
+    req.user._id,
+    { name, avatar },
+    { new: true, runValidators: true }
+  )
+    .then((user) => {
+      if (!user) {
+        res.status(NOT_FOUND_ERROR).send({ message: "User not found" });
+      } else {
+        res.status(USER_OK).send({ data: user });
+      }
+    })
+    .catch((err) => errorHandler.errorHandler(req, res, err));
 };
