@@ -4,6 +4,6 @@ const userController = require("../controllers/users");
 
 router.get("/me", auth, userController.getCurrentUser);
 
-router.patch("/me", userController.updateProfile);
+router.patch("/me", auth, userController.updateProfile);
 
 module.exports = router;

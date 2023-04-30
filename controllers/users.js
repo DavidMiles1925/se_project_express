@@ -89,6 +89,7 @@ module.exports.getCurrentUser = (req, res) => {
 };
 
 module.exports.updateProfile = async (req, res) => {
+  console.log("Upate profile accessed");
   const { name, avatar } = req.body;
   User.findByIdAndUpdate(
     req.user._id,
