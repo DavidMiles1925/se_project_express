@@ -63,7 +63,7 @@ module.exports.likeItem = (req, res) => {
     });
 };
 
-module.exports.dislikeItem = (req, res) =>
+module.exports.dislikeItem = (req, res) => {
   Item.findByIdAndUpdate(
     req.params.ItemId,
     { $pull: { likes: req.user._id } }, // remove _id from the array
@@ -76,3 +76,4 @@ module.exports.dislikeItem = (req, res) =>
     .catch((err) => {
       errorHandler.errorHandler(req, res, err);
     });
+};

@@ -5,22 +5,20 @@ const validator = require("validator");
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: true,
     minlength: 2,
     maxlength: 30,
     default: "Elise Bouer",
   },
   avatar: {
     type: String,
-    required: true,
+    default:
+      "https://practicum-content.s3.us-west-1.amazonaws.com/software-engineer/wtwr-project/Elise.png?etag=0807a449ad64b18fe7cd94781c622e6d",
     validate: {
       validator(value) {
         return validator.isURL(value);
       },
       message: "You must enter a valid URL.",
     },
-    default:
-      "https://practicum-content.s3.us-west-1.amazonaws.com/software-engineer/wtwr-project/Elise.png?etag=0807a449ad64b18fe7cd94781c622e6d",
   },
   email: {
     type: String,

@@ -37,7 +37,15 @@ module.exports.getUserById = (req, res) => {
 };
 
 module.exports.createUser = (req, res) => {
-  const { name, avatar, email } = req.body;
+  let { name, avatar } = req.body;
+  const { email } = req.body;
+  if (!name) {
+    name = "New User";
+  }
+  if (!avatar) {
+    avatar =
+      "https://practicum-content.s3.us-west-1.amazonaws.com/software-engineer/wtwr-project/Elise.png?etag=0807a449ad64b18fe7cd94781c622e6d";
+  }
 
   bcrypt
     .hash(req.body.password, 10)
@@ -56,6 +64,7 @@ module.exports.createUser = (req, res) => {
       res.send(userWithoutPassword);
     })
     .catch((err) => {
+      console.log(err);
       errorHandler.errorHandler(req, res, err);
     });
 };
@@ -89,7 +98,6 @@ module.exports.getCurrentUser = (req, res) => {
 };
 
 module.exports.updateProfile = async (req, res) => {
-  console.log("Upate profile accessed");
   const { name, avatar } = req.body;
   User.findByIdAndUpdate(
     req.user._id,
