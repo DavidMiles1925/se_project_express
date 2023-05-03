@@ -46,7 +46,6 @@ module.exports.createUser = (req, res) => {
     avatar =
       "https://practicum-content.s3.us-west-1.amazonaws.com/software-engineer/wtwr-project/Elise.png?etag=0807a449ad64b18fe7cd94781c622e6d";
   }
-
   bcrypt
     .hash(req.body.password, 10)
     .then((hash) =>
