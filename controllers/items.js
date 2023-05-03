@@ -51,7 +51,7 @@ module.exports.deleteItem = (req, res) => {
 module.exports.likeItem = (req, res) => {
   Item.findByIdAndUpdate(
     req.params.ItemId,
-    { $addToSet: { likes: req.user._id } }, // add _id to the array if it's not there yet
+    { $addToSet: { likes: req.user._id } },
     { new: true }
   )
     .orFail()
@@ -66,7 +66,7 @@ module.exports.likeItem = (req, res) => {
 module.exports.dislikeItem = (req, res) => {
   Item.findByIdAndUpdate(
     req.params.ItemId,
-    { $pull: { likes: req.user._id } }, // remove _id from the array
+    { $pull: { likes: req.user._id } },
     { new: true }
   )
     .orFail()
