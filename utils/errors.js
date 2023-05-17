@@ -2,7 +2,7 @@ const {
   VALIDATION_OR_CAST_ERROR,
   NOT_FOUND_ERROR,
   DEFAULT_ERROR,
-  USER_EXISTS_ERROR,
+  CONFLICT_ERROR,
 } = require("./errorConstants");
 
 module.exports.errorHandler = (req, res, err) => {
@@ -19,7 +19,7 @@ module.exports.errorHandler = (req, res, err) => {
       message: `Document Not Found: Name: ${err.name}`,
     });
   } else if (err.code === 11000) {
-    res.status(USER_EXISTS_ERROR).send({ message: "User already exists" });
+    res.status(CONFLICT_ERROR).send({ message: "User already exists" });
   } else {
     res.status(DEFAULT_ERROR).send({
       message: `An error has occurred on the server: Name: ${err.name}`,

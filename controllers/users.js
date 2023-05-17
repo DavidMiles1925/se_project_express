@@ -5,7 +5,7 @@ const User = require("../models/user");
 const errorHandler = require("../utils/errors");
 const {
   VALIDATION_OR_CAST_ERROR,
-  AUTHENTICATION_ERROR,
+  UNAUTHORIZED__ERROR,
   USER_OK,
   NOT_FOUND_ERROR,
 } = require("../utils/errorConstants");
@@ -80,7 +80,7 @@ module.exports.login = (req, res) => {
       res.status(USER_OK).send({ token });
     })
     .catch((err) => {
-      res.status(AUTHENTICATION_ERROR).send({ message: err.message });
+      res.status(UNAUTHORIZED__ERROR).send({ message: err.message });
     });
 };
 
