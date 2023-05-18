@@ -2,24 +2,24 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
-const errorHandler = require("../utils/errors");
 const {
   VALIDATION_OR_CAST_ERROR,
-  UNAUTHORIZED__ERROR,
   USER_OK,
   NOT_FOUND_ERROR,
 } = require("../utils/errorConstants");
 const { JWT_SECRET } = require("../utils/config");
+const BadRequestError = require("../middlewares/badRequestError");
+const NotFoundError = require("../middlewares/notFoundError");
 
-module.exports.getUsers = (req, res) => {
+module.exports.getUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.status(USER_OK).send(users))
-    .catch((err) => {
-      errorHandler.errorHandler(req, res, err);
+    .catch(() => {
+      next(new BadRequestError("Bad Request."));
     });
 };
 
-module.exports.getUserById = (req, res) => {
+module.exports.getUserById = (req, res, next) => {
   User.findById(req.params.UserId)
     .orFail()
     .then((user) => {
@@ -31,12 +31,12 @@ module.exports.getUserById = (req, res) => {
           .status(VALIDATION_OR_CAST_ERROR)
           .send({ message: `Invalid ID: ${err.message} Name: ${err.name}` });
       } else {
-        errorHandler.errorHandler(req, res, err);
+        next(new NotFoundError("User Not Found."));
       }
     });
 };
 
-module.exports.createUser = (req, res) => {
+module.exports.createUser = (req, res, next) => {
   let { name, avatar } = req.body;
   const { email } = req.body;
   if (!name) {
@@ -62,13 +62,12 @@ module.exports.createUser = (req, res) => {
 
       res.send(userWithoutPassword);
     })
-    .catch((err) => {
-      console.log(err);
-      errorHandler.errorHandler(req, res, err);
+    .catch(() => {
+      next(new BadRequestError("Bad Request."));
     });
 };
 
-module.exports.login = (req, res) => {
+module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
 
   User.findUserByCredentials(email, password)
@@ -79,12 +78,12 @@ module.exports.login = (req, res) => {
 
       res.status(USER_OK).send({ token });
     })
-    .catch((err) => {
-      res.status(UNAUTHORIZED__ERROR).send({ message: err.message });
+    .catch(() => {
+      next(new NotFoundError("User not found ."));
     });
 };
 
-module.exports.getCurrentUser = (req, res) => {
+module.exports.getCurrentUser = (req, res, next) => {
   User.findById(req.user._id)
     .then((user) => {
       if (!user) {
@@ -93,10 +92,12 @@ module.exports.getCurrentUser = (req, res) => {
         res.status(USER_OK).send({ data: user });
       }
     })
-    .catch((err) => errorHandler.errorHandler(req, res, err));
+    .catch(() => {
+      next(new NotFoundError("User not found."));
+    });
 };
 
-module.exports.updateProfile = async (req, res) => {
+module.exports.updateProfile = async (req, res, next) => {
   const { name, avatar } = req.body;
   User.findByIdAndUpdate(
     req.user._id,
@@ -110,5 +111,7 @@ module.exports.updateProfile = async (req, res) => {
         res.status(USER_OK).send({ data: user });
       }
     })
-    .catch((err) => errorHandler.errorHandler(req, res, err));
+    .catch(() => {
+      next(new BadRequestError("Bad Request."));
+    });
 };

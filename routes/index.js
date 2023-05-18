@@ -4,9 +4,13 @@ const userRouter = require("./users");
 const { login, createUser } = require("../controllers/users");
 const auth = require("../middlewares/auth");
 const { NOT_FOUND_ERROR } = require("../utils/errorConstants");
+const {
+  validateUserInfo,
+  validateUserLoginInfo,
+} = require("../middlewares/validation");
 
-router.post("/signin", login);
-router.post("/signup", createUser);
+router.post("/signin", validateUserLoginInfo, login);
+router.post("/signup", validateUserInfo, createUser);
 
 router.use("/items", itemRouter);
 router.use("/users", auth, userRouter);

@@ -1,3 +1,4 @@
+/*
 const {
   VALIDATION_OR_CAST_ERROR,
   NOT_FOUND_ERROR,
@@ -26,3 +27,4 @@ module.exports.errorHandler = (req, res, err) => {
     });
   }
 };
+*/
