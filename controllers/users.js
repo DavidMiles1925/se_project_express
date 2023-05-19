@@ -10,6 +10,8 @@ const {
 const { JWT_SECRET } = require("../utils/config");
 const BadRequestError = require("../middlewares/badRequestError");
 const NotFoundError = require("../middlewares/notFoundError");
+const UnauthorizedError = require("../middlewares/unauthorizedError");
+const ConflictError = require("../middlewares/conflictError");
 
 module.exports.getUsers = (req, res, next) => {
   User.find({})
@@ -63,7 +65,7 @@ module.exports.createUser = (req, res, next) => {
       res.send(userWithoutPassword);
     })
     .catch(() => {
-      next(new BadRequestError("Bad Request."));
+      next(new ConflictError("Email already in use."));
     });
 };
 
@@ -79,7 +81,7 @@ module.exports.login = (req, res, next) => {
       res.status(USER_OK).send({ token });
     })
     .catch(() => {
-      next(new NotFoundError("User not found ."));
+      next(new UnauthorizedError("Invalid email or password."));
     });
 };
 
