@@ -1,8 +1,12 @@
 # WTWR (What to Wear?): Back End
 
-## Link to project:
+## Project Links
 
 https://www.dmwtwr.crabdance.com/#/main
+
+Link to front end repo: https://github.com/DavidMiles1925/se_project_react
+
+Link to back end repo: https://github.com/DavidMiles1925/se_project_express
 
 ## Created an API for use with my WTWR (What to Wear?) project:
 
