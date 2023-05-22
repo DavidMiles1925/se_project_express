@@ -7,6 +7,7 @@ const {
   USER_OK,
   NOT_FOUND_ERROR,
 } = require("../utils/errorConstants");
+const { JWT_SECRET = "..." } = process.env;
 const BadRequestError = require("../middlewares/badRequestError");
 const NotFoundError = require("../middlewares/notFoundError");
 const UnauthorizedError = require("../middlewares/unauthorizedError");
@@ -73,7 +74,7 @@ module.exports.login = (req, res, next) => {
 
   User.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
+      const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
         expiresIn: "7d",
       });
 
