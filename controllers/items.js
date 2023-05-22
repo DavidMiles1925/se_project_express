@@ -1,4 +1,3 @@
-/* eslint-disable no-underscore-dangle */
 const Item = require("../models/item");
 const { USER_OK } = require("../utils/errorConstants");
 const NotFoundError = require("../middlewares/notFoundError");
@@ -11,8 +10,8 @@ module.exports.getItems = (req, res, next) => {
     .then((items) => {
       res.status(USER_OK).send(items);
     })
-    .catch(() => {
-      next(new NotFoundError("Items not found."));
+    .catch((err) => {
+      next(err);
     });
 };
 
@@ -23,8 +22,14 @@ module.exports.createItem = (req, res, next) => {
     .then((item) => {
       res.status(USER_OK).send({ data: item });
     })
-    .catch(() => {
-      next(new ConflictError("Conflict."));
+    .catch((err) => {
+      if (err.name === "ValidationError") {
+        next(new BadRequestError("Bad request")); // some message
+      } else if (err.name === "ConflictError") {
+        next(new ConflictError("Conflict")); // some message
+      } else {
+        next(err);
+      }
     });
 };
 
@@ -46,8 +51,8 @@ module.exports.deleteItem = (req, res, next) => {
           next(new NotFoundError("Items not found."));
         });
     })
-    .catch(() => {
-      next(new BadRequestError("Bad Request."));
+    .catch((err) => {
+      next(err);
     });
 };
 
@@ -61,8 +66,8 @@ module.exports.likeItem = (req, res, next) => {
     .then((item) => {
       res.status(USER_OK).send({ data: item });
     })
-    .catch(() => {
-      next(new BadRequestError("Bad Request."));
+    .catch((err) => {
+      next(err);
     });
 };
 
@@ -76,7 +81,7 @@ module.exports.dislikeItem = (req, res, next) => {
     .then((item) => {
       res.status(USER_OK).send({ data: item });
     })
-    .catch(() => {
-      next(new BadRequestError("Bad Request."));
+    .catch((err) => {
+      next(err);
     });
 };
