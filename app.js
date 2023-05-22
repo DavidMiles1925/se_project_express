@@ -11,6 +11,12 @@ const app = express();
 const { errors } = require("celebrate");
 const { requestLogger, errorLogger } = require("./middlewares/logger");
 
+app.get("/crash-test", () => {
+  setTimeout(() => {
+    throw new Error("Server will crash now");
+  }, 0);
+});
+
 const routes = require("./routes");
 
 const errorHandler = require("./middlewares/error-handler");
