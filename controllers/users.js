@@ -43,8 +43,8 @@ module.exports.createUser = (req, res, next) => {
       res.send(userWithoutPassword);
     })
     .catch((err) => {
-      if (err.name === "ConflictError") {
-        next(new ConflictError("Conflict")); // some message
+      if (err.name === "MongoServerError") {
+        next(new ConflictError("Conflict"));
       } else {
         next(err);
       }
